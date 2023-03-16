@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../Js/cookie.js"></script>
+    <script src="../Js/login.js"></script>
+    <script>
+        window.onload = function () {
+            var loginButton = document.getElementById("login");
+            var user = document.getElementById("user");
+            var outUser;
+            loginButton.addEventListener('click', function () {
+                document.getElementById('login-container').classList.toggle('show');
+                document.getElementById('login-container').style.display = 'block';
+                document.getElementById('shadow_login').classList.toggle('shadow_login');
+            });
+            var loggedIn = false;
+
+            if (getCookie("userName") == "") {
+                loggedIn = false;
+            } else {
+                loggedIn = true;
+                username = getCookie("userName");
+            }
+            if (loggedIn) {
+                loginButton.innerHTML = null;
+                user.innerHTML = `<div id="userCode" class="userCode">${username}</div> 
+                <div id="outUser" class="outUser">注销</div>`;
+                var outUser = document.getElementById("outUser")
+            } else {
+                loginButton.innerHTML = `<div class="login_btn" id="login">Login</div>`;
+            }
+            if (outUser != undefined) {
+                outUser.addEventListener('click', function () {
+                    loggedIn = false;
+                    deleteCookie("userName");
+                    loginButton.innerHTML = `<div class="login_btn" id="login">Login</div>`;
+                    user.innerHTML = null;
+                });
+            }
+
+
+        }
+        //设置功能模块  
+        $(document).ready(function () {
+            var username = getCookie("userName");
+            var pageWordsNum = $('#pageWordsNum').val();
+            var s_type = $('#s_type').val();
+            var detaTime = $('#detaTime').val();
+            if (pageWordsNum == null || pageWordsNum == "") {
+                $('#generate').click(function () {
+                    $.ajax(
+                        {
+                            type: 'POST',
+                            url: 'http://localhost:8080/ReciteDemo/setRecite',
+                            data: {
+                                username: username,
+                                pageWordsNum: pageWordsNum,
+                                detaTime: detaTime
+                            },
+                            success: function (response) {
+                                var result = JSON.parse(response);
+                                if (result.flag == "success") {
+                                    
+                                    setCookie("pageWordsNum", pageWordsNum, 30);
+                                    localStorage.setItem("pageWordsNum", pageWordsNum);
+                                    setCookie("detaTime", detaTime, 30);
+                                    localStorage.setItem("detaTime", detaTime);
+                                    location.reload();
+                                } else {
+
+                                }
+                            }
+                        }
+                    );
+                });
+
+            }
+
+
+
+        })
+
+        // if (loggedIn) {
+        //     loginButton.innerHTML = `<a href="#">${username}</a>`;
+        // } else {
+        //     loginButton.innerHTML = `<a href="#">Login</a>`;
+        // }
+    </script>
+    <style>
+        body,
+        html {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            height: 59px;
+            position: relative;
+            top: 0;
+            border: 1px solid #b8b8b8;
+            background: white;
+            z-index: 101;
+        }
+
+        body ul {
+            list-style-type: none;
+        }
+
+        li {
+            margin: 0 10px;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        #login {
+            position: absolute;
+            right: 20px;
+            margin: 0 20px;
+            cursor: pointer;
+        }
+
+        #user {
+            position: absolute;
+            right: 20px;
+            margin: 0 20px;
+            cursor: pointer;
+        }
+
+        .userCode {
+            position: absolute;
+            right: 20px;
+            margin: 0 20px;
+        }
+
+        .outUser {
+            position: absolute;
+            right: -35px;
+            margin: 0 20px;
+            width: 40px;
+            height: 25px;
+            line-height: 25px;
+            font-size: 2px;
+            text-align: center;
+            background: #4e6ef2;
+            cursor: pointer;
+            border-radius: 3px;
+            color: white;
+        }
+
+        .outUser:hover {
+            background-color: rgb(70, 98, 217);
+        }
+
+        .logo {
+            position: absolute;
+            left: 20px;
+            margin: 0 20px;
+        }
+
+        #login-container {
+            display: none;
+            /* 默认隐藏对话框 */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 300px;
+            background-color: white;
+            border: 1px solid gray;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            border-radius: 10px;
+            /* 设置堆叠顺序，使对话框位于顶部 */
+        }
+
+        #login-container form {
+            padding: 0 32px;
+            margin-top: 60px;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .shadow_login {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            margin: 0;
+            z-index: 1000;
+        }
+
+        #shadow_login {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .background {
+            width: 100%;
+            height: 100%;
+            background: rgb(223, 222, 222);
+            z-index: 99;
+            position: absolute;
+        }
+
+        .close-btn {
+            background: url(https://passport.baidu.com/passApi/img/uni-close.png) no-repeat center center / 100% 100%;
+            cursor: pointer;
+            width: 21px;
+            height: 21px;
+            outline: 0;
+            display: block;
+            margin: 9px -11px;
+            padding: 0;
+        }
+
+        #login-container>div:first-child {
+            position: absolute;
+            right: 0;
+            padding: 0 18px;
+        }
+
+        #login-container form>input {
+            caret-color: #4e6ef2;
+            position: relative;
+            z-index: 17;
+            box-sizing: border-box;
+            display: block;
+            padding: 10px 20px;
+            margin: 0;
+            height: 48px;
+            line-height: 20px;
+            width: 336px;
+            border: 1px solid #b8b8b8;
+            font-size: 18px;
+            color: #1f1f1f;
+            transition: .3s;
+            font-family: PingFangSC-Regular, Tahoma, Helvetica, "Microsoft Yahei", "微软雅黑", Arial, STHeiti;
+            border-radius: 8px;
+        }
+
+        .button-submit {
+            width: 336px;
+            height: 48px;
+            line-height: 48px;
+            background: #4e6ef2;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px 0 rgb(78 111 242 / 30%);
+            font-size: 17px;
+            font-weight: 800;
+            border: 0;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .button-submit:hover {
+            background-color: #4662d9;
+        }
+
+        .left-box {
+            position: relative;
+            margin-right: 25px;
+            float: left;
+            width: 20%;
+            height: 75%;
+            border: 1px solid gray;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            background: white;
+            z-index: 101;
+            margin-top: 20px;
+            /* margin-left: 15px; */
+            border-radius: 10px;
+        }
+
+        .mid-box {
+            position: relative;
+            float: left;
+            width: 25%;
+            height: 75%;
+            border: 1px solid gray;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            background: white;
+            z-index: 101;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .right-box {
+            position: relative;
+            float: right;
+            width: 50%;
+            height: 75%;
+            border: 1px solid gray;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            background: white;
+            z-index: 101;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        /* .right-box:hover {
+
+            border: 3px solid #4e6ef2;
+            box-shadow: 2px 2px 5px rgba(78, 111, 242, 0.3);
+        } */
+
+        #sidebar {
+            position: absolute;
+            width: auto;
+            margin-right: 10px;
+            margin-top: 10px;
+            margin-left: 10px;
+            z-index: 101;
+        }
+
+        #sidebar th,
+        .student-Condition th {
+            text-align: left;
+            font-size: 80%;
+            color: #666;
+            width: 80;
+        }
+
+        #sidebar td {
+            font-size: 12px;
+            color: #999;
+            padding: 3px 0;
+        }
+
+        #sidebar input {
+            width: 80%;
+        }
+
+        #generate {
+            width: 40%;
+            height: auto;
+            color: #fff;
+            background: #4e6ef2;
+            border-radius: 2px;
+            box-shadow: 0 6px 16px 0 rgb(78 111 242 / 30%);
+            border: 0;
+            text-align: center;
+            cursor: pointer;
+            right: 10px;
+            position: absolute;
+        }
+
+        #generate:hover {
+            background-color: #4662d9;
+        }
+
+        .student-Condition {
+            position: absolute;
+            bottom: 50%;
+            left: 5%;
+            z-index: 101;
+        }
+
+        .student-Condition td>div {
+            width: 35px;
+            height: auto;
+            color: #fff;
+            background: #5572e5;
+            border-radius: 2px;
+            box-shadow: 0 6px 16px 0 rgba(98, 118, 197, 0.3);
+            border: 0;
+            text-align: center;
+            margin-left: 15px;
+        }
+
+        .end {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            height: 59px;
+            position: absolute;
+            bottom: 0;
+            border: 1px solid #b8b8b8;
+            background: white;
+            z-index: 101;
+        }
+
+        .ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #4e6ef2;
+            border-radius: 10px;
+            animation: ring 1s;
+            display: none;
+            z-index: 1;
+        }
+
+        @keyframes ring {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="shadow_login"></div>
+    <div class="background">
+
+        <div style="width: 100%; height: 100%;">
+            <div class="header">
+                <ul>
+                    <li>
+                        <div class="logo">ReciteDemo</div>
+                        <div class="login_btn" id="login">
+                            登入
+                        </div>
+                        <div id="user" class="user"></div>
+                    </li>
+                </ul>
+            </div>
+            <div class="left-box">
+                <div class="setting-box">
+                    <form id="sidebar">
+                        <table>
+                            <tr>
+                                <th>每天学习量</th>
+                                <td><input id="pageWordsNum"></td>
+                            </tr>
+                            <tr>
+                                <th>学习类型</th>
+                                <td><select id="s_type" name="type">
+                                        <option value="type1">英汉</option>
+                                        <option value="type2">汉英</option>
+                                    </select></td>
+                            </tr>
+                            <tr>
+                                <th>规划时长</th>
+                                <td><input id="detaTime" type="number"><br></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="generate">save</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+                <div class="student-Condition">
+                    <table>
+                        <tr>
+                            <th>单词总量</th>
+                            <td>
+                                <div id="wordSumNum">0</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>已规划记忆的单词量</th>
+                            <td>
+                                <div id="wordComNum">0</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>已规划记忆的天数</th>
+                            <td>
+                                <div id="reciteTime">0</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="ring"></div>
+            </div>
+            <div class="mid-box">
+                <div class="ring"></div>
+                <div class="words-head">
+                    <div>
+                        <div class="word">recite</div>
+                    </div>
+                    <div>
+                        <div style="display: flex;align-items: center;font-size: 12px;">
+                            <div class="word-ph">英:[rɪˈsaɪt]</div><img src="../img/扬声器.png" alt=""
+                                style="width: 10px;height: 10px;cursor: pointer;margin-left: 5px;" id="speaker">
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    // JavaScript
+
+                    const speaker = document.getElementById("speaker");
+                    var sound = new Audio("http://dict.youdao.com/dictvoice?type=0&audio=recite");
+                    speaker.addEventListener("click", function () {
+                        sound.play();
+                    });
+                </script>
+                <div class="maining"></div>
+                <div class="list-word">
+                    <div class="list-word-head">例句</div>
+                </div>
+                <div class="ph-word">
+                    <div class="ph-word-head">短语</div>
+                </div>
+                <div class="btn-reciteDiv">
+                    <div class="recitred-btn">认识</div>
+                    <div class="unreecitr-btn">忘记</div>
+                </div>
+                <div class="number-word" style="position: absolute;bottom: 0;margin-left: 10px;font-size: 12px;
+                color: #2c2c2c7f; ">1-2</div>
+                <style>
+                    .words-head {
+                        border-radius: 10px 10px 0 0;
+                        height: 55px;
+                        width: 100%;
+                        background: linear-gradient(to top, #889df0, #5572e5);
+                    }
+
+                    .maining {
+                        margin-top: 1px;
+                        height: 35px;
+                        background: linear-gradient(to top, #99aaed, #889df0);
+                    }
+
+                    .list-word,
+                    .ph-word {
+
+                        height: 120px;
+                    }
+
+                    .btn-reciteDiv {
+                        position: absolute;
+                        height: 50px;
+                        width: 100%;
+                        bottom: 20%;
+                        display: flex;
+                    }
+
+                    .btn-reciteDiv div {
+                        width: 45px;
+                        height: 35px;
+                        border: 1px solid rgb(85, 0, 255);
+                        margin: 6.25px auto;
+                        color: #fff;
+                        border-radius: 2px;
+                        /* box-shadow: 0 6px 16px 0 rgba(98, 118, 197, 0.3); */
+                        border: 0;
+                        text-align: center;
+                        line-height: 35px;
+                        font-size: 14px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        z-index: 100;
+                    }
+
+                    .btn-reciteDiv div:nth-child(1) {
+                        background: #4662d9;
+                    }
+
+                    .btn-reciteDiv div:hover {
+                        opacity: 0.8;
+                    }
+
+                    .btn-reciteDiv div:nth-child(2) {
+                        background-color: #b8b8b8;
+                    }
+
+                    .list-word-head,
+                    .ph-word-head {
+                        height: 20px;
+                        line-height: 20px;
+                        font-size: 12px;
+                        color: #2c2c2c7f;
+                        background: #b8b8b83e;
+                        padding-left: 10px;
+                    }
+
+                    .words-head>div {
+                        margin: 0px auto;
+                        width: 100px;
+                        height: 25px;
+                        line-height: 25px;
+                        font-size: 15px;
+                        text-align: center;
+                        position: relative;
+                        z-index: 100;
+                        display: flex;
+                    }
+
+                    .words-head>div>div {
+                        margin: 0px auto;
+                    }
+                </style>
+            </div>
+            <div class="right-box">
+                <div class="ring"></div>
+                <div
+                    style="width: 100%;height: 100%;position: absolute;display: flex;align-items: center;z-index: 100;">
+                    <textarea name="spellingList" id="spellingList"
+                        style="height: 80%;width: 80%; margin: 0 auto;border: 0 ;resize: none;" placeholder="在此拼写记忆"
+                        size="50"></textarea>
+                </div>
+                <style>
+                    #spellingList::placeholder {
+                        position: absolute;
+                        top: 0;
+                        left: 0%;
+                        /* transform: translate(-50%, 0); */
+                    }
+
+                    #spellingList {
+                        vertical-align: text-top;
+                        text-align: justify;
+                        padding: 5px;
+                    }
+                </style>
+            </div>
+            <script>
+                const rightBoxElements = document.querySelectorAll('.right-box');
+                const leftBoxElements = document.querySelectorAll('.left-box');
+                const midBoxElements = document.querySelectorAll('.mid-box');
+
+                const elements = [...rightBoxElements, ...leftBoxElements, ...midBoxElements];
+
+                const area = document.querySelector('.right-box') || document.querySelector('.left-box') || document.querySelector('.mid-box');
+                const ringElements = document.querySelectorAll('.ring');
+                const ring = Array.from(ringElements);
+                for (const area of elements) {
+                    area.addEventListener('mouseover', () => {
+                        if (area == document.querySelector('.right-box')) {
+                            ring[2].style.display = 'block';
+                        } else if (area == document.querySelector('.left-box')) {
+                            ring[0].style.display = 'block';
+
+                        } else {
+                            ring[1].style.display = 'block';
+                        }
+
+                    });
+
+                    area.addEventListener('mouseout', () => {
+                        for (const element of ring) {
+                            element.style.display = 'none';
+                            // do something with element
+                        }
+                    });
+
+                }
+
+            </script>
+        </div>
+        <div class="end"></div>
+    </div>
+    <div id="login-container">
+        <div> <a href="" class="close-btn"></a></div>
+        <form id="login-form">
+            <input type="text" id="username" name="username" placeholder="用户名"><br>
+            <input type="text" id="password" name="password" placeholder="密码">
+            <p><input id="submit" type="submit" value="登录" class="button-submit"></p>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>
